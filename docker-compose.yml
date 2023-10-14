@@ -1,0 +1,44 @@
+version: '3.9'
+services:
+  golang:
+    build:
+      context: .
+      dockerfile: Dockerfile.go
+    image: perf-golang-server
+    container_name: perf-golang-server
+    command: ["go", "run", "main.go"]
+    restart: always
+    ports:
+      - 3030:80
+    environment:
+      - PORT=80
+      - GO111MODULE=off
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          # memory: "10m"
+  nodejs:
+    build:
+      context: .
+      dockerfile: Dockerfile.nodejs
+    container_name: perf-nodejs-server
+    image: perf-nodejs-server
+    command: ["node", "index.js"]
+    restart: always
+    ports:
+      - 3031:80
+    environment:
+      - PORT=80
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          # memory: "10m"
+  locust:
+    image: locustio/locust
+    ports:
+     - "8089:8089"
+    volumes:
+      - ./locust:/mnt/locust
+    command: -f /mnt/locust/locustfile.py
